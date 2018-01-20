@@ -112,3 +112,30 @@ def butter_highpass(cutoff, fs, signal, order=6):
     plt.xlabel('f (Hz)')
     plt.title('Single-Sided Spectrum of High Pass Filtered Wave File')
     return signal_filtered, f_full
+
+wave_file = wave.open('Path_to_file.wav','r') #insert path to your *.wav file
+
+#Extract Raw Audio from Wav File
+temp = wave_file.readframes(-1)
+
+#Convert raw audio to an array we can plot using numpy and trim it to a managable size
+signal = np.fromstring(temp, 'Int16')
+
+#Get frame rate to plot against time
+fs = wave_file.getframerate()
+
+#If Stereo
+if wave_file.getnchannels() == 2:
+    print('Just mono files')
+
+#Calculate time vector
+Time=np.linspace(0, signal.size, signal.size) * (1/(2*fs))
+
+cutoff_HP = 400
+signal_HP, f_full_HP, = butter_lowpass(cutoff_HP, fs, signal)
+plt.show()
+
+#Save out filtered signal into *.wav file
+signal_HP2 = np.asarray(signal_HP, dtype=np.int16)
+import scipy.io.wavfile
+scipy.io.wavfile.write('Path_to_file.wav', 2*fs, signal_HP2) #insert path for your final *.wav file
